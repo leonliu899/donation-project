@@ -32,10 +32,8 @@ public class LevelLoader : MonoBehaviour
 
         do 
         {
-            await Task.Delay(10000);
         } while (scene.progress < 0.9f);
 
-        await Task.Delay(10000);
 
         scene.allowSceneActivation = true;
     }

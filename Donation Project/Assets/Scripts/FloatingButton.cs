@@ -16,25 +16,25 @@ public class FloatingButton : MonoBehaviour
     Vector3 initScale;
     float initY;
 
-    void Start()
-    {
-        initY = transform.position.y;
-        initScale = transform.localScale;
+    // void Start()
+    // {
+    //     initY = transform.position.y;
+    //     initScale = transform.localScale;
 
-        transform.position = new Vector3(transform.position.x, hiddenYLevel, transform.position.z);
-        transform.localScale = Vector3.zero;
+    //     transform.position = new Vector3(transform.position.x, hiddenYLevel, transform.position.z);
+    //     transform.localScale = Vector3.zero;
 
-        StartCoroutine(Show());
-    }
+    //     StartCoroutine(Show());
+    // }
 
     void Update()
     {
-        if(CityRise.Instance.risen)
-        {
-            StopCoroutine(Show());
-            transform.position = new Vector3(transform.position.x, initY, transform.position.z);
-            transform.localScale = initScale;
-        }
+        // if(CityRise.Instance.risen)
+        // {
+        //     StopCoroutine(Show());
+        //     transform.position = new Vector3(transform.position.x, initY, transform.position.z);
+        //     transform.localScale = initScale;
+        // }
 
         transform.LookAt(followSpeed * transform.position - target.position);
         Vector3 eulerAngles = transform.rotation.eulerAngles;
