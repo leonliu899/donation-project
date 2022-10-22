@@ -27,9 +27,9 @@ Material:
     - _FlipX: 0
     - _FlipY: 0
     - _Intensity: 0.5
-    - _Multiplier: 1
+    - _Multiplier: 0.5
     - _blurSizeXY: 1
     - _intensity: 0
     m_Colors:
-    - _Color: {r: 0.33962262, g: 0.33962262, b: 0.33962262, a: 1}
+    - _Color: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []
