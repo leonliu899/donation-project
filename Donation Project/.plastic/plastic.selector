@@ -1,0 +1,3 @@
+rep "donationproject@donation@cloud"
+  path "/"
+    smartbranch "/main"       
