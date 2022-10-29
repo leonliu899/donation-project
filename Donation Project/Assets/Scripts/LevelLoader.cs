@@ -9,10 +9,15 @@ public class LevelLoader : MonoBehaviour
 {
     [Header("UI")]
     public Image loadingBar;
+    public GameObject readyText;
+    public GameObject waitLoadingText;
     public float loadSpeed;
 
     [Space(20)]
     public int indexToLoad;
+    public bool allowLoadScene;
+
+    AsyncOperation scene;
 
     void Awake()
     {
@@ -22,21 +27,44 @@ public class LevelLoader : MonoBehaviour
 
     void Start()
     {
+        readyText.SetActive(false);
+        waitLoadingText.SetActive(false);
+        loadingBar.gameObject.SetActive(true);
         LoadScene(indexToLoad);
     }
 
     public async void LoadScene(int index)
     {
-        var scene = SceneManager.LoadSceneAsync(index);
+        scene = SceneManager.LoadSceneAsync(index);
+        loadingBar.gameObject.SetActive(true);
         scene.allowSceneActivation = false;
 
         do 
         {
+            await Task.Delay(1);
         } while (scene.progress < 0.9f);
 
 
-        scene.allowSceneActivation = true;
+        allowLoadScene = true;
+        loadingBar.gameObject.SetActive(false);
+        readyText.SetActive(true);
     }
+
+    public void LoadReadyScene()
+    {
+        if(allowLoadScene)
+            scene.allowSceneActivation = true;
+        else
+            StartCoroutine(WaitLoadText());
+    }
+
+    IEnumerator WaitLoadText()
+    {
+        waitLoadingText.SetActive(true);
+        yield return new WaitForSeconds(2);
+        waitLoadingText.SetActive(false);
+    }
+    
 
     IEnumerator DoLoadingAnimation()
     {
