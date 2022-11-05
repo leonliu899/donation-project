@@ -1,92 +1,99 @@
-using System.Collections;
-using System.Collections.Generic;
 using Krivodeling.UI.Effects;
+using NaughtyAttributes;
 using UnityEngine;
 
 public class CityRise : MonoBehaviour
 {
-    public float speed;
-    public Vector2 yRange;
-    public ReflectionProbe reflectionProbe;
+	[BoxGroup("Objects")][Required][SerializeField] Transform city;
+	[BoxGroup("Objects")][Required][SerializeField] ReflectionProbe reflectionProbe;
+	
+	[BoxGroup("Properties")][MinValue(0)] public float speed;
+	[BoxGroup("Properties")] public Vector2 cityRiseYRange;
+	
+	[BoxGroup("Blur")][Required][SerializeField] UIBlur blurScript;
+	[BoxGroup("Blur")][MinValue(0)][SerializeField] float blurTransitionSpeed;
 
-    [Space(20)]
-    public UIBlur blurScript;
-    public float blurSpeed;
+	[BoxGroup("Debug")][ReadOnly] public bool risen;
+	[BoxGroup("Debug")] public bool allowCityRise;
 
-    [Space(20)]
-    public bool risen;
+	[BoxGroup("Mini-Island")][Required][SerializeField] Transform miniIsland;
+	[BoxGroup("Mini-Island")][SerializeField] float miniIslandYRaise;
+	[BoxGroup("Mini-Island")][SerializeField][MinValue(0)] float miniIslandRaiseSpeed;
 
-    [Space(20)]
-    [Header("Island Raise")]
-    public Transform islandToRaise;
-    public float yRaiseLevel;
-    public float raiseSpeed;
+	Color white = Color.white;
+	float miniIslandInitY;
+	[HideInInspector] public bool toggleMiniRaise;
 
-    Color white = Color.white;
-    float islandInitY;
-    bool toggleRaise;
+	public static CityRise Instance;
 
-    public static CityRise Instance;
+	void Awake()
+	{
+		Instance = this;
 
-    void Awake()
-    {
-        Instance = this;
-        transform.position = new Vector3(transform.position.x, yRange.x, transform.position.z);
-    }
+		risen = false;
+		allowCityRise = false;
+		// Put city in the ground
+		city.position = new Vector3(city.position.x, cityRiseYRange.x, city.position.z);
+		miniIsland.position = new Vector3(miniIsland.position.x, -100f, miniIsland.position.z);
+	}
 
-    void Start()
-    {
-        blurScript.gameObject.SetActive(true);
-        if(islandToRaise != null)
-            islandInitY = islandToRaise.position.y;
-    }
-    
-    void Update()
-    {
-        if(transform.position.y >= yRange.y && !risen)
-            transform.position = new Vector3(transform.position.x, yRange.y, transform.position.z);
-        if(transform.position.y < yRange.y && !risen)
-        {
-            transform.Translate(Vector3.up * speed * Time.deltaTime);
-        } else 
-        {
-            risen = true;
-        }
+	void Start()
+	{
+		blurScript.gameObject.SetActive(true);
+		miniIslandInitY = miniIsland.position.y;
+	}
+	
+	void Update()
+	{
+		if(allowCityRise)
+		{
+			RaiseCity();
+		}
+	}
+	
+	void RaiseCity()
+	{
+		if(city.position.y >= cityRiseYRange.y && !risen)
+			city.position = new Vector3(city.position.x, cityRiseYRange.y, city.position.z);
+		if(city.position.y < cityRiseYRange.y && !risen)
+		{
+			city.Translate(Vector3.up * speed * Time.deltaTime);
+		} else 
+		{
+			risen = true;
+		}
 
-        if(risen)
-        {
-            if(blurScript != null)
-            {
-                blurScript.Color = white;
-                blurScript.Intensity = 0;
-                blurScript.enabled = false;
+		if(risen)
+		{
+			if(blurScript != null)
+			{
+				blurScript.Color = white;
+				blurScript.Intensity = 0;
+				blurScript.enabled = false;
 
-                reflectionProbe.refreshMode = UnityEngine.Rendering.ReflectionProbeRefreshMode.ViaScripting;
-            }
-        }
-        else
-        {
-            if(blurScript != null)
-            {
-                var targetColor = Color.Lerp(blurScript.Color, white, Time.deltaTime * blurSpeed);
-                var targetIntensity = Mathf.Lerp(blurScript.Intensity, 0, Time.deltaTime * blurSpeed);
-                if(targetColor != null)
-                    blurScript.Color = targetColor;
-                blurScript.Intensity = targetIntensity;
-            }
-        }
+				reflectionProbe.refreshMode = UnityEngine.Rendering.ReflectionProbeRefreshMode.ViaScripting;
+			}
+		}
+		else
+		{
+			if(blurScript != null)
+			{
+				var targetColor = Color.Lerp(blurScript.Color, white, Time.deltaTime * blurTransitionSpeed);
+				var targetIntensity = Mathf.Lerp(blurScript.Intensity, 0, Time.deltaTime * blurTransitionSpeed);
+				if(targetColor != null)
+					blurScript.Color = targetColor;
+				blurScript.Intensity = targetIntensity;
+			}
+		}
 
-        if(islandToRaise != null)
-        {
-        islandToRaise.position = toggleRaise? Vector3.Lerp(islandToRaise.position, 
-                                   new Vector3(islandToRaise.position.x, yRaiseLevel, islandToRaise.position.z), Time.deltaTime * raiseSpeed) :
-                                   Vector3.Lerp(islandToRaise.position, 
-                                   new Vector3(islandToRaise.position.x, islandInitY, islandToRaise.position.z), Time.deltaTime * raiseSpeed);
-        }
-    }
+		miniIsland.position = toggleMiniRaise? Vector3.Lerp(miniIsland.position, 
+								   new Vector3(miniIsland.position.x, miniIslandYRaise, miniIsland.position.z), Time.deltaTime * miniIslandRaiseSpeed) :
+								   Vector3.Lerp(miniIsland.position, 
+								   new Vector3(miniIsland.position.x, miniIslandInitY, miniIsland.position.z), Time.deltaTime * miniIslandRaiseSpeed);
+	}
 
-    public void ToggleIslandRaise()
-    {
-        toggleRaise = !toggleRaise;
-    }
+	public void ToggleMiniIslandRaise()
+	{
+		toggleMiniRaise = !toggleMiniRaise;
+	}
 }

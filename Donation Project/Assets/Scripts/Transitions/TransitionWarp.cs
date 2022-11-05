@@ -21,7 +21,6 @@ public class TransitionWarp : MonoBehaviour
         {
             if(index.transitionName.Equals(name))
             {
-                Debug.Log("yo");
                 foreach(GameObject disable in index.camsToDisable)
                 {
                     disable.SetActive(false);

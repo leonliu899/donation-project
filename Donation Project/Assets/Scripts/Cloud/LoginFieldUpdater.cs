@@ -10,6 +10,7 @@ public class LoginFieldUpdater : MonoBehaviour
     [Header("Login")]
     public TMP_InputField loginEmailField;
     public TMP_InputField loginPassField;
+    public TMP_Text loginMessageText;
     [Space(15)]
     public GameObject loginEmailEmpty;
     public GameObject loginPassEmpty;
@@ -44,6 +45,9 @@ public class LoginFieldUpdater : MonoBehaviour
         signupSuccessText.gameObject.SetActive(cloudManager.signedUp);
         if(cloudManager.signedIn)
             levelLoader.LoadReadyScene();
+
+        if(!cloudManager.signedInError)
+            loginMessageText.text = cloudManager.signedInText;
     }
 
     public void Login()
@@ -75,7 +79,26 @@ public class LoginFieldUpdater : MonoBehaviour
 
     bool EmptyLoginFieldCheck()
     {
-        return false;
+        bool hasEmpty = false;
+        if(EmptyText(loginEmailField.text))
+        {
+            loginEmailEmpty.SetActive(true);
+            hasEmpty = true;
+        } else
+        {
+            loginEmailEmpty.SetActive(false);
+        }
+
+        if(EmptyText(loginPassField.text))
+        {
+            loginPassEmpty.SetActive(true);
+            hasEmpty = true;
+        } else
+        {
+            loginPassEmpty.SetActive(false);
+        }
+
+        return hasEmpty;
     }
 
     bool EmptySignupFieldCheck()

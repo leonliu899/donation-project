@@ -7,7 +7,6 @@ public class CloudManager : MonoBehaviour
     public string gameId;
     public string gameToken;
 
-    [Space(20)]
     [Header("Login")]
     public string loginEmail;
     public string loginPass;
@@ -17,13 +16,14 @@ public class CloudManager : MonoBehaviour
     public string signupPass;
     public string signupPassConfirm;
 
-    [Space(25)]
     [Header("Debug")]
     public bool applicationSetup;
     public bool signedUp;
     public bool signedIn;
+    public bool signedInError;
+    public string signedInText;
 
-    public static CloudManager Instance;
+    public static CloudManager Instance;    
 
     void Awake()
     {
@@ -34,6 +34,7 @@ public class CloudManager : MonoBehaviour
     void Start()
     {
         CloudLogin.SetUpGame(gameId, gameToken, ApplicationSetUp, true);
+        signedInText = "";
     }
 
     void ApplicationSetUp(string message, bool hasError)
@@ -81,13 +82,17 @@ public class CloudManager : MonoBehaviour
         {
             Debug.LogWarning(message);
 
+            signedInError = false;
             signedIn = false;
         } else 
         {
             Debug.Log("Logged in: " + CloudLoginUser.CurrentUser.GetUsername());
             Debug.Log(message);
 
+            signedInError = true;
             signedIn = true;
         }
+
+        signedInText = message;
     }
 }
