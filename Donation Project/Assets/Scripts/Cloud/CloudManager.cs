@@ -1,4 +1,5 @@
 using CloudLoginUnity;
+using NaughtyAttributes;
 using UnityEngine;
 
 public class CloudManager : MonoBehaviour
@@ -17,11 +18,9 @@ public class CloudManager : MonoBehaviour
     public string signupPassConfirm;
 
     [Header("Debug")]
-    public bool applicationSetup;
-    public bool signedUp;
-    public bool signedIn;
-    public bool signedInError;
-    public string signedInText;
+    [ReadOnly] public bool applicationSetup;
+    [ReadOnly] public bool signedUp;
+    [ReadOnly] public bool signedIn;
 
     public static CloudManager Instance;    
 
@@ -34,7 +33,6 @@ public class CloudManager : MonoBehaviour
     void Start()
     {
         CloudLogin.SetUpGame(gameId, gameToken, ApplicationSetUp, true);
-        signedInText = "";
     }
 
     void ApplicationSetUp(string message, bool hasError)
@@ -52,7 +50,8 @@ public class CloudManager : MonoBehaviour
 
     public void SignUp()
     {
-        CloudLogin.SignUp(signupEmail, signupPass, signupPassConfirm, signupUsername, SignedUpConfirm);
+        if(applicationSetup)
+            CloudLogin.SignUp(signupEmail, signupPass, signupPassConfirm, signupUsername, SignedUpConfirm);
     }
 
     void SignedUpConfirm(string message, bool hasError)
@@ -82,17 +81,14 @@ public class CloudManager : MonoBehaviour
         {
             Debug.LogWarning(message);
 
-            signedInError = false;
             signedIn = false;
         } else 
         {
             Debug.Log("Logged in: " + CloudLoginUser.CurrentUser.GetUsername());
             Debug.Log(message);
 
-            signedInError = true;
             signedIn = true;
         }
 
-        signedInText = message;
     }
 }

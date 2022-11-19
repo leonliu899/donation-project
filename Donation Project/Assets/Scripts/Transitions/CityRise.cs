@@ -53,15 +53,13 @@ public class CityRise : MonoBehaviour
 	
 	void RaiseCity()
 	{
-		if(city.position.y >= cityRiseYRange.y && !risen)
+		city.position = Vector3.MoveTowards(city.position, 
+						new Vector3(city.position.x, cityRiseYRange.y, city.position.z),
+						speed * Time.deltaTime); // Time.deltaTime --> over time
+
+		if(city.position.y >= cityRiseYRange.y && risen)
 			city.position = new Vector3(city.position.x, cityRiseYRange.y, city.position.z);
-		if(city.position.y < cityRiseYRange.y && !risen)
-		{
-			city.Translate(Vector3.up * speed * Time.deltaTime);
-		} else 
-		{
-			risen = true;
-		}
+
 
 		if(risen)
 		{
@@ -85,6 +83,7 @@ public class CityRise : MonoBehaviour
 				blurScript.Intensity = targetIntensity;
 			}
 		}
+
 
 		miniIsland.position = toggleMiniRaise? Vector3.Lerp(miniIsland.position, 
 								   new Vector3(miniIsland.position.x, miniIslandYRaise, miniIsland.position.z), Time.deltaTime * miniIslandRaiseSpeed) :
