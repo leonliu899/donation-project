@@ -1,28 +1,36 @@
+using System;
 using CloudLoginUnity;
 using NaughtyAttributes;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class CloudManager : MonoBehaviour
 {
     [Header("Server")]
     public string gameId;
     public string gameToken;
+    public UnityEvent OnSignIn;    
 
-    [Header("Login")]
-    public string loginEmail;
-    public string loginPass;
-    [Header("Signup")]
-    public string signupUsername;
-    public string signupEmail;
-    public string signupPass;
-    public string signupPassConfirm;
+    [Header("Sign In")]
+    [ReadOnly] public string signinEmail;
+    [ReadOnly] public string signinPass;
+    [Header("Sign Up")]
+    [ReadOnly] public string signUpUsername;
+    [ReadOnly] public string signUpEmail;
+    [ReadOnly] public string signUpPass;
+    [ReadOnly] public string signUpPassConfirm;
 
     [Header("Debug")]
     [ReadOnly] public bool applicationSetup;
     [ReadOnly] public bool signedUp;
     [ReadOnly] public bool signedIn;
+    [ReadOnly] public bool hasSignUpError;
+    [ReadOnly] public string signUpErrorMessage;
+    [ReadOnly] public bool hasSignInError;
+    [ReadOnly] public string signInErrorMessage;
 
-    public static CloudManager Instance;    
+    public static CloudManager Instance;
+    
 
     void Awake()
     {
@@ -32,6 +40,8 @@ public class CloudManager : MonoBehaviour
 
     void Start()
     {
+        signUpErrorMessage = "";
+        signInErrorMessage = "";
         CloudLogin.SetUpGame(gameId, gameToken, ApplicationSetUp, true);
     }
 
@@ -48,10 +58,11 @@ public class CloudManager : MonoBehaviour
         }
     }
 
+
     public void SignUp()
     {
         if(applicationSetup)
-            CloudLogin.SignUp(signupEmail, signupPass, signupPassConfirm, signupUsername, SignedUpConfirm);
+            CloudLogin.SignUp(signUpEmail, signUpPass, signUpPassConfirm, signUpUsername, SignedUpConfirm);
     }
 
     void SignedUpConfirm(string message, bool hasError)
@@ -59,20 +70,24 @@ public class CloudManager : MonoBehaviour
         if(hasError)
         {
             Debug.LogWarning(message);
-
+            signUpErrorMessage = message;
+            hasSignUpError = true;
             signedUp = false;
         } else 
         {
-            Debug.Log("Signed up " + signupUsername);
+            Debug.Log("Signed up " + signUpUsername);
             Debug.Log(message);
-
+            signUpErrorMessage = "";
+            hasSignUpError = false;
             signedUp = true;
         }
     }
 
-    public void Signin()
+
+
+    public void SignIn()
     {
-        CloudLogin.SignIn(loginEmail, loginPass, SignedInConfirm);
+        CloudLogin.SignIn(signinEmail, signinPass, SignedInConfirm);
     }
 
     void SignedInConfirm(string message, bool hasError)
@@ -80,14 +95,18 @@ public class CloudManager : MonoBehaviour
         if(hasError)
         {
             Debug.LogWarning(message);
-
+            signInErrorMessage = message;
+            hasSignInError = true;
             signedIn = false;
         } else 
         {
             Debug.Log("Logged in: " + CloudLoginUser.CurrentUser.GetUsername());
             Debug.Log(message);
-
+            signInErrorMessage = "";
+            hasSignInError = false;
             signedIn = true;
+
+            OnSignIn?.Invoke();
         }
 
     }
