@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
@@ -14,6 +15,8 @@ public class AuthenticationUIManager : MonoBehaviour
     [Required][SerializeField] GameObject menuScreen;
     [Required][SerializeField] GameObject loginScreen;
     [Required][SerializeField] GameObject signupScreen;
+    [Required][SerializeField] ScrollRect scrollRect;
+    [Required][SerializeField] GameObject sidebar;
     
     [Space(20)]
     [Header("Login")]
@@ -38,6 +41,7 @@ public class AuthenticationUIManager : MonoBehaviour
 
     void Start()
     {
+        sidebar.SetActive(false);
         loadingBar.SetActive(true);
         doLoadingAnimation = true;
 
@@ -48,17 +52,18 @@ public class AuthenticationUIManager : MonoBehaviour
 
         ShowLoginScreen();
         DoLoadingAnimation();
+
     }
 
     void Update()
     {
-        if(cloudManager.hasSignUpError) signUpErrorText.text = cloudManager.signUpErrorMessage;
+        signUpErrorText.text = cloudManager.signUpErrorMessage;
         cloudManager.signUpEmail = signupEmailField.text;
         cloudManager.signUpUsername = signupUsernameField.text;
         cloudManager.signUpPass = signupPassField.text;
         cloudManager.signUpPassConfirm = signupPassConfirmField.text;
 
-        if(cloudManager.hasSignInError) signinErrorText.text = cloudManager.signInErrorMessage;
+        signinErrorText.text = cloudManager.signInErrorMessage;
         cloudManager.signinEmail = signinEmailField.text;
         cloudManager.signinPass = signinPassField.text;
     }
@@ -103,6 +108,8 @@ public class AuthenticationUIManager : MonoBehaviour
         signupScreen.SetActive(true);
     }
 
+    // INSPECTOR CALLS
+
     public void HideMenuScreen()
     {
         DOVirtual.Float(1, 0, 1, x =>
@@ -111,6 +118,7 @@ public class AuthenticationUIManager : MonoBehaviour
         }).SetEase(Ease.Linear).OnComplete(()=>
         {
             menuScreen.SetActive(false);
+            sidebar.SetActive(true);
         });
     }
 
@@ -125,5 +133,14 @@ public class AuthenticationUIManager : MonoBehaviour
         {
             loadingScreen.SetActive(false);
         });
+    }
+
+    public void ScrollToBottom()
+    {
+        DOVirtual.Float(scrollRect.verticalNormalizedPosition, 0, 1, x =>
+        {
+            scrollRect.verticalNormalizedPosition = x;
+        }).SetEase(Ease.OutSine);
+        
     }
 }

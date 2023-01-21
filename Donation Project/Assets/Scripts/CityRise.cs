@@ -35,10 +35,11 @@ public class CityRise : MonoBehaviour
 	
 	public void RaiseCity()
 	{
-		if(allowCityRise)
+		if(allowCityRise && risen == false)
 		{
 			ResetCity();
 			camMgr.allowRotate = true;
+			GameManager.Instance.ClearMusic();
 			dynamicCity.DOLocalMoveY(cityRiseYRange.y, riseDuration).SetEase(Ease.InOutSine).OnComplete(() => 
 			{ 
 				risen = true;  
@@ -46,6 +47,17 @@ public class CityRise : MonoBehaviour
 				staticCity.gameObject.SetActive(true);
 			});
 		}
+	}
+
+	public void RiseDown()
+	{
+		dynamicCity.gameObject.SetActive(true);
+		staticCity.gameObject.SetActive(false);
+		dynamicCity.DOLocalMoveY(cityRiseYRange.x, riseDuration).SetEase(Ease.InOutSine).OnComplete(() => 
+		{ 
+			risen = false;  
+			CloudManager.Instance.Restart();
+		});
 	}
 
 	public void ResetCity()

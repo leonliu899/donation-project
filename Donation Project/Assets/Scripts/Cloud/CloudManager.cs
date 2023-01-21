@@ -3,6 +3,7 @@ using CloudLoginUnity;
 using NaughtyAttributes;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.SceneManagement;
 
 public class CloudManager : MonoBehaviour
 {
@@ -35,7 +36,6 @@ public class CloudManager : MonoBehaviour
     void Awake()
     {
         Instance = this;
-        DontDestroyOnLoad(this.gameObject);
     }
 
     void Start()
@@ -43,6 +43,11 @@ public class CloudManager : MonoBehaviour
         signUpErrorMessage = "";
         signInErrorMessage = "";
         CloudLogin.SetUpGame(gameId, gameToken, ApplicationSetUp, true);
+    }
+
+    void Update()
+    {
+        if(Input.GetKeyDown(KeyCode.P)) OnSignIn?.Invoke();
     }
 
     void ApplicationSetUp(string message, bool hasError)
@@ -77,9 +82,11 @@ public class CloudManager : MonoBehaviour
         {
             Debug.Log("Signed up " + signUpUsername);
             Debug.Log(message);
-            signUpErrorMessage = "";
+            signUpErrorMessage = message;
             hasSignUpError = false;
             signedUp = true;
+
+            OnSignIn?.Invoke();
         }
     }
 
@@ -102,12 +109,17 @@ public class CloudManager : MonoBehaviour
         {
             Debug.Log("Logged in: " + CloudLoginUser.CurrentUser.GetUsername());
             Debug.Log(message);
-            signInErrorMessage = "";
+            signInErrorMessage = message;
             hasSignInError = false;
             signedIn = true;
 
             OnSignIn?.Invoke();
         }
 
+    }
+
+    public void Restart()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 }
