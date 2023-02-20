@@ -1,4 +1,5 @@
 using System.Collections;
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -15,94 +16,76 @@ public class FloatingButton : MonoBehaviour
 
 	[Space(20)]
 	[Header("Button Properties")]
-	public Color normal;
-	public Color pressed;
-	public Color hover;
 	public Renderer baseButton;
 	public UnityEvent onPress;
+	public GameObject window;
 	[Header("Button Animation")]
 	public float scaleUpHover;
 	public float scaleUpSpeed;
 
 	Vector3 initScale;
 	float initY;
-	float initMouseEnterScale;
 	bool hovering;
 
 	bool hasShown;
 	void Start()
 	{
-		initScale = transform.localScale;
-		initMouseEnterScale = transform.localScale.x;
-		initY = transform.position.y;
+		Init();
+	}
 
-		baseButton.material.SetColor( "_EmissionColor", normal );
+	void Init()
+	{
+		initScale = transform.localScale;
+		initY = transform.position.y;
 
 		transform.position = new Vector3(transform.position.x, hiddenYLevel, transform.position.z);
 		transform.localScale = Vector3.zero;
+	}
 
+	public void RiseUp()
+	{
+		if(!hasShown)
+		{
+			transform.DOMoveY(initY, showSpeed).SetEase(Ease.InOutSine);
+			transform.DOScale(initScale, showSpeed).SetEase(Ease.OutSine);
+			hasShown = true;
+		}
 	}
 
 	void Update()
 	{
-		if(!hasShown && CityRise.Instance.allowCityRise)
-		{
-			StartCoroutine(Show());
-			hasShown = true;
-		}
-		
-		if(CityRise.Instance.risen)
-		{
-			StopCoroutine(Show());
-
-			transform.localScale = hovering? Vector3.Lerp(transform.localScale, 
-										 new Vector3(initMouseEnterScale * scaleUpHover, initMouseEnterScale * scaleUpHover, initMouseEnterScale * scaleUpHover),
-										 Time.deltaTime * scaleUpSpeed) :
-										 Vector3.Lerp(transform.localScale, 
-										 new Vector3(initMouseEnterScale, initMouseEnterScale, initMouseEnterScale),
-										 Time.deltaTime * scaleUpSpeed);
-		}
-
-		
-
-		transform.LookAt(new Vector3(cameraBrain.position.x, -1*(transform.position.y - cameraBrain.position.y), cameraBrain.position.z));
+		LookAtCamera();
 	}
 
-	IEnumerator Show()
+	void LookAtCamera()
 	{
-		while(transform.position.y < initY)
-		{
-			transform.position = Vector3.Lerp(transform.position, new Vector3(transform.position.x, initY, transform.position.z)
-											, Time.deltaTime * showSpeed);
-			transform.localScale = Vector3.Lerp(transform.localScale, initScale, Time.deltaTime * showSpeed);
-
-			yield return new WaitForSeconds(0.01f);
-		}
+		Vector3 direction = cameraBrain.position - transform.position;
+        direction.y = 0;
+        transform.forward = direction.normalized;
+        transform.Rotate(0, Time.deltaTime * 100, 0);
 	}
 
 	void OnMouseDown()
 	{
-		baseButton.material.SetColor( "_EmissionColor", pressed );
-		onPress.Invoke();
-		hovering = false;
+		if(!FloatingButtonManager.Instance.windowIsOpen)
+			onPress.Invoke();
 	}
 	
 	void OnMouseUp()
-	{
-		baseButton.material.SetColor( "_EmissionColor", hover );
-		hovering = true;
+	{			
+		transform.DOScale(initScale*scaleUpHover, scaleUpSpeed).SetEase(Ease.InSine);
 	}
 
 	void OnMouseEnter()
 	{
-		baseButton.material.SetColor( "_EmissionColor", hover );
-		initMouseEnterScale = transform.localScale.x;
-		hovering = true;
+		if(!FloatingButtonManager.Instance.windowIsOpen)
+		{
+			transform.DOScale(initScale*scaleUpHover, scaleUpSpeed).SetEase(Ease.InSine);
+		}
 	}
 	
 	void OnMouseExit()
 	{
-		baseButton.material.SetColor( "_EmissionColor", normal );
-		hovering = false;
+		transform.DOScale(initScale, scaleUpSpeed).SetEase(Ease.OutSine);
 	}
 }
