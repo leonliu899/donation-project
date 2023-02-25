@@ -1,7 +1,6 @@
 using System;
 using CloudLoginUnity;
 using NaughtyAttributes;
-using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
@@ -11,7 +10,7 @@ public class CloudManager : MonoBehaviour
     [Header("Server")]
     public string gameId;
     public string gameToken;
-    public UnityEvent OnSignIn;   
+    public UnityEvent OnSignIn;    
 
     [Header("Sign In")]
     [ReadOnly] public string signinEmail;
@@ -31,10 +30,6 @@ public class CloudManager : MonoBehaviour
     [ReadOnly] public bool hasSignInError;
     [ReadOnly] public string signInErrorMessage;
 
-    [Header("Other")]
-    public GameObject logOutButton;
-    public TMP_Text usernameText;
-
     public static CloudManager Instance;
     
 
@@ -48,11 +43,12 @@ public class CloudManager : MonoBehaviour
         signUpErrorMessage = "";
         signInErrorMessage = "";
         CloudLogin.SetUpGame(gameId, gameToken, ApplicationSetUp, true);
-
-        logOutButton.SetActive(false);
-        usernameText.transform.parent.gameObject.SetActive(false);
     }
 
+    void Update()
+    {
+        if(Input.GetKeyDown(KeyCode.P)) OnSignIn?.Invoke();
+    }
 
     void ApplicationSetUp(string message, bool hasError)
     {
@@ -89,11 +85,8 @@ public class CloudManager : MonoBehaviour
             signUpErrorMessage = message;
             hasSignUpError = false;
             signedUp = true;
-            signedIn = true;
 
             OnSignIn?.Invoke();
-
-            usernameText.text = CloudLoginUser.CurrentUser.GetUsername();
         }
     }
 
@@ -121,7 +114,6 @@ public class CloudManager : MonoBehaviour
             signedIn = true;
 
             OnSignIn?.Invoke();
-            usernameText.text = "Welcome " + CloudLoginUser.CurrentUser.GetUsername();
         }
 
     }

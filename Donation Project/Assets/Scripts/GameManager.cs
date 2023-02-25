@@ -11,8 +11,6 @@ public class GameManager : MonoBehaviour
 
     public static GameManager Instance;
 
-    bool showSettings;
-
     void Awake()
     {
         Instance = this;
@@ -21,28 +19,6 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         MuffleMusic();
-    }
-
-    public void ToggleSettings()
-    {
-        showSettings = !showSettings;
-    }
-
-    void OnGUI()
-    {
-        string[] names = QualitySettings.names;
-        if(showSettings)
-        {
-            GUILayout.BeginVertical();
-            for (int i = 0; i < names.Length; i++)
-            {
-                if (GUILayout.Button(names[i]))
-                {
-                    QualitySettings.SetQualityLevel(i, true);
-                }
-            }
-            GUILayout.EndVertical();
-        }
     }
 
     public void MuffleMusic()

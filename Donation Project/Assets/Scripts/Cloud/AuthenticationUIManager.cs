@@ -6,17 +6,17 @@ using Krivodeling.UI.Effects;
 using NaughtyAttributes;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Events;
 using UnityEngine.UI;
 
 public class AuthenticationUIManager : MonoBehaviour
 {
     [Required][SerializeField] GameObject loadingScreen;
     [Required][SerializeField] GameObject loadingBar;
-    [Required][SerializeField] GameObject homeScreen;
+    [Required][SerializeField] GameObject menuScreen;
     [Required][SerializeField] GameObject loginScreen;
     [Required][SerializeField] GameObject signupScreen;
-    [SerializeField] UnityEvent OnLoad;
+    [Required][SerializeField] ScrollRect scrollRect;
+    [Required][SerializeField] GameObject sidebar;
     
     [Space(20)]
     [Header("Login")]
@@ -41,11 +41,12 @@ public class AuthenticationUIManager : MonoBehaviour
 
     void Start()
     {
+        sidebar.SetActive(false);
         loadingBar.SetActive(true);
         doLoadingAnimation = true;
 
         loadingBar.GetComponent<CanvasGroup>().alpha = 1;
-        homeScreen.SetActive(false);
+        menuScreen.GetComponent<CanvasGroup>().alpha = 0;
 
         cloudManager = CloudManager.Instance;
 
@@ -77,10 +78,22 @@ public class AuthenticationUIManager : MonoBehaviour
             if(x <= 0.01f && cloudManager.applicationSetup && doLoadingAnimation)
             {
                 doLoadingAnimation = false;
-                UnBlurLoadingScreen(1);
-                OnLoad.Invoke();
+                DoShowMenuScreen();
             }
         }).SetEase(Ease.OutSine).SetLoops(-1, LoopType.Yoyo);
+    }
+    void DoShowMenuScreen()
+    {
+        DOVirtual.Float(1, 0, 1, x =>
+        {
+            loadingBar.GetComponent<CanvasGroup>().alpha = x;
+        }).SetEase(Ease.OutSine).OnComplete(()=>
+        {
+            DOVirtual.Float(0, 1, 1, x =>
+            {
+                menuScreen.GetComponent<CanvasGroup>().alpha = x;
+            }).SetEase(Ease.OutSine);
+        });
     }
 
     public void ShowLoginScreen()
@@ -97,17 +110,37 @@ public class AuthenticationUIManager : MonoBehaviour
 
     // INSPECTOR CALLS
 
+    public void HideMenuScreen()
+    {
+        DOVirtual.Float(1, 0, 1, x =>
+        {
+            menuScreen.GetComponent<CanvasGroup>().alpha = x;
+        }).SetEase(Ease.Linear).OnComplete(()=>
+        {
+            menuScreen.SetActive(false);
+            sidebar.SetActive(true);
+        });
+    }
+
     public void UnBlurLoadingScreen(float duration)
     {
         
         DOVirtual.Float(0.5f, 0, duration, x =>
         {
             loadingScreen.GetComponent<UIBlur>().Intensity = x;
-            loadingScreen.GetComponentInChildren<CanvasGroup>().alpha = x;
             loadingScreen.GetComponent<UIBlur>().Color = Color.Lerp(loadingScreen.GetComponent<UIBlur>().Color, Color.white, Time.deltaTime * 4);
         }).SetEase(Ease.Linear).OnComplete(()=>
         {
             loadingScreen.SetActive(false);
         });
+    }
+
+    public void ScrollToBottom()
+    {
+        DOVirtual.Float(scrollRect.verticalNormalizedPosition, 0, 1, x =>
+        {
+            scrollRect.verticalNormalizedPosition = x;
+        }).SetEase(Ease.OutSine);
+        
     }
 }

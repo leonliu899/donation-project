@@ -22,12 +22,11 @@ public class CityRise : MonoBehaviour
 	void Awake()
 	{
 		Instance = this;
-		risen = false;
-
 	}
 
 	void Start()
 	{
+		risen = false;
 		staticCity.gameObject.SetActive(false);
 		dynamicCity.gameObject.SetActive(true);
 
