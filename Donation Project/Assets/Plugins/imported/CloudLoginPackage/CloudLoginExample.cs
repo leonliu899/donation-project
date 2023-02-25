@@ -23,8 +23,10 @@ public class CloudLoginExample : MonoBehaviour {
 
         if (gameToken == "" || gameID == "")
         {
+            #if UNITY_EDITOR
             EditorUtility.DisplayDialog("Add ID and Token", "Please add your token and ID, if you do not have one, you can create a free account from cloudlogin.dev", "OK");
             throw new Exception("Token and ID Invalid");
+            #endif
         }
         else
         {
